@@ -15,11 +15,11 @@ find_path (FFTW_INCLUDES fftw3.h)
 IF (WIN32)
 include_directories(${FFTW_INCLUDES})
 find_library (FFTW_LIBRARIES NAMES ${FFTW_LIBRARIES})
+elseif(ANDROID)
+find_library (FFTW_LIBRARIES NAMES fftw3f)
 ELSE(WIN32)
 find_library (FFTW_LIBRARIES NAMES fftw3)
 ENDIF(WIN32)
-
-
 
 
 # handle the QUIETLY and REQUIRED arguments and set FFTW_FOUND to TRUE if
