@@ -312,35 +312,38 @@ static int detach_kernel_drivers(libusb_device_handle* usb_device_handle)
 
 static int set_hackrf_configuration(libusb_device_handle* usb_device, int config)
 {
-	/* int result, curr_config; */
-	/* result = libusb_get_configuration(usb_device, &curr_config); */
-	/* if( result != 0 ) */
-	/* { */
-	/* 	last_libusb_error = result; */
-	/* 	return HACKRF_ERROR_LIBUSB; */
-	/* } */
+#ifndef ANDROID
+	int result, curr_config;
+	result = libusb_get_configuration(usb_device, &curr_config);
+	if( result != 0 )
+	{
+		last_libusb_error = result;
+		return HACKRF_ERROR_LIBUSB;
+	}
 
-	/* if(curr_config != config) */
-	/* { */
-	/* 	result = detach_kernel_drivers(usb_device); */
-	/* 	if( result != 0 ) */
-	/* 	{ */
-	/* 		return result; */
-	/* 	} */
-	/* 	result = libusb_set_configuration(usb_device, config); */
-	/* 	if( result != 0 ) */
-	/* 	{ */
-	/* 		last_libusb_error = result; */
-	/* 		return HACKRF_ERROR_LIBUSB; */
-	/* 	} */
-	/* } */
+	if(curr_config != config)
+	{
+		result = detach_kernel_drivers(usb_device);
+		if( result != 0 )
+		{
+			return result;
+		}
+		result = libusb_set_configuration(usb_device, config);
+		if( result != 0 )
+		{
+			last_libusb_error = result;
+			return HACKRF_ERROR_LIBUSB;
+		}
+	}
 
-	/* result = detach_kernel_drivers(usb_device); */
-	/* if( result != 0 ) */
-	/* { */
-	/* 	return result; */
-	/* } */
+	result = detach_kernel_drivers(usb_device);
+	if( result != 0 )
+	{
+		return result;
+	}
+#else
 	return LIBUSB_SUCCESS;
+#endif
 }
 
 #ifdef __cplusplus
@@ -348,15 +351,15 @@ extern "C"
 {
 #endif
 
-int ADDCALL hackrf_init()
+int ADDCALL hackrf_init(void)
 {
 	int libusb_error;
 	if (g_libusb_context != NULL) {
 		return HACKRF_SUCCESS;
 	}
 
-    libusb_error = libusb_init(&g_libusb_context);
-	
+	libusb_error = libusb_init(&g_libusb_context);
+
 	if( libusb_error != 0 )
 	{
 		last_libusb_error = libusb_error;
@@ -545,7 +548,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	if( result != LIBUSB_SUCCESS )
 	{
 		libusb_close(usb_device);
-		return -1111;
+		return result;
 	}
 
 	result = libusb_claim_interface(usb_device, 0);
@@ -553,7 +556,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	{
 		last_libusb_error = result;
 		libusb_close(usb_device);
-		return -2222;
+		return HACKRF_ERROR_LIBUSB;
 	}
 
 	lib_device = NULL;
@@ -562,7 +565,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 	{
 		libusb_release_interface(usb_device, 0);
 		libusb_close(usb_device);
-		return -3333;
+		return HACKRF_ERROR_NO_MEM;
 	}
 
 	lib_device->usb_device = usb_device;
@@ -578,7 +581,7 @@ static int hackrf_open_setup(libusb_device_handle* usb_device, hackrf_device** d
 		free(lib_device);
 		libusb_release_interface(usb_device, 0);
 		libusb_close(usb_device);
-		return -4444;
+		return HACKRF_ERROR_NO_MEM;
 	}
 
 	*device = lib_device;

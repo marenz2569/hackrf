@@ -46,7 +46,9 @@ else()
 	endif(${BIGENDIAN})
 endif()
 find_package(USB1 REQUIRED)
-# find_package(Threads REQUIRED)
+if(!ANDORID)
+    find_package(Threads REQUIRED)
+endif(!ANDORID)
 
 include_directories(${LIBUSB_INCLUDE_DIR} ${THREADS_PTHREADS_INCLUDE_DIR})
 

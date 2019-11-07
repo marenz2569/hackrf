@@ -149,7 +149,7 @@ extern ADDAPI const char* ADDCALL hackrf_library_release();
 extern ADDAPI hackrf_device_list_t* ADDCALL hackrf_device_list();
 extern ADDAPI int ADDCALL hackrf_device_list_open(hackrf_device_list_t *list, int idx, hackrf_device** device);
 extern ADDAPI void ADDCALL hackrf_device_list_free(hackrf_device_list_t *list);
-    extern ADDAPI int ADDCALL hackrf_android_open(hackrf_device** device, int fd, const char* device_path);
+extern ADDAPI int ADDCALL hackrf_android_open(hackrf_device** device, int fd, const char* device_path);
  
 extern ADDAPI int ADDCALL hackrf_open(hackrf_device** device);
 extern ADDAPI int ADDCALL hackrf_open_by_serial(const char* const desired_serial_number, hackrf_device** device);
