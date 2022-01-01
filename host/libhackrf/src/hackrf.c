@@ -358,6 +358,8 @@ int ADDCALL hackrf_init(void)
 		return HACKRF_SUCCESS;
 	}
 
+	libusb_set_option(NULL, LIBUSB_OPTION_WEAK_AUTHORITY);
+
 	libusb_error = libusb_init(&g_libusb_context);
 
 	if( libusb_error != 0 )
@@ -645,18 +647,10 @@ int ADDCALL hackrf_open_by_serial(const char* const desired_serial_number, hackr
 
 int ADDCALL hackrf_android_open(hackrf_device** device, int fd, const char* device_path)
 {
-	libusb_device* usb_device;
-    int result;
-
-    usb_device = libusb_get_device2(g_libusb_context, device_path);
-
-    if(!usb_device) {
-		return -1231;//HACKRF_ERROR_LIBUSB;
-    }
-
+	int result;
 	libusb_device_handle* usb_device_handle;
 	
-	result = libusb_open2(usb_device, &usb_device_handle, fd);
+	result = libusb_wrap_sys_device(g_libusb_context, (intptr_t)fd, &usb_device_handle);
 
 	if(result != 0) {
 		last_libusb_error = result;
